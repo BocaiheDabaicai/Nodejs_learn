@@ -56,3 +56,24 @@ server.listen(8001,'127.0.0.1',()=>{
     console.log('Listening to requests on port 8001')
 })
 ```
+
+#### 1.3 使用服务器、设置路由
+
+指令启动服务器，如果对文件进行更改，要记得重启服务器
+
+`node index.js`
+
+设置路由
+
+- 获取请求路由，`req.url`
+
+- 设置响应头，`res.writeHead(状态码,{响应头})`
+
+示例：
+
+```js
+res.writeHead(404,{
+            'Content-type':'text/html',
+            'my-own-header':'hello-world'
+        })
+```
