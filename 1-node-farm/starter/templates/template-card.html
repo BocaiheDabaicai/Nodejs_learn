@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
 <figure class="card">
     <div class="card__emoji">{%IMAGE%}{%IMAGE%}</div>
     <div class="card__title-box">
@@ -13,7 +6,11 @@
 
     <div class="card__details">
         <div class="card__detail-box {%NOT_ORGANIC%}">
-            <h6 class="card__detail">{{%QUANTITY%}} {%IMAGE%} per 📦</h6>
+            <h6 class="card__detail card__detail--organic">Organic!</h6>
+        </div>
+
+        <div class="card__detail-box">
+            <h6 class="card__detail">{%QUANTITY%} per 📦</h6>
         </div>
 
         <div class="card__detail-box">
@@ -25,5 +22,3 @@
         <span>Detail <i class="emoji-right">👉</i></span>
     </a>
 </figure>
-</body>
-</html>
