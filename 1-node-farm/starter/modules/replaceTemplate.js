@@ -9,6 +9,8 @@ module.exports = (temp, product) => {
     output = output.replace(/{%ID%}/g, product.id)
     output = output.replace(/{%DESCRIPTION%}/g, product.description)
 
+    console.log("asdc")
+
     if (!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic')
 
     return output
