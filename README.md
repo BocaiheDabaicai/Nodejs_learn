@@ -227,3 +227,126 @@ res.writeHead(404,{
 4. 事件循环是精心布置的
 
 服务开启之后会处于运行状态，每当接收到新的请求时，处理请求，反馈数据，并再次进入监听状态，直到服务结束为止。
+
+#### 3.3 Node.js 执行实践
+
+```js
+// 2. 获取模块文件
+const fs = require("fs");
+const crypto = require("crypto")
+const start = new Date()
+
+process.env.UV_THREADPOOL_SIZE = 2
+
+
+// 3. 逐一获取事件
+setTimeout(() => console.log("Timer 1 finished"), 0)  //  1
+setImmediate(() => console.log("Immediate 1 finished"))  //  2
+
+fs.readFile("./test-file.txt", () => {     // 3
+    console.log("I/O finished")
+    console.log("-------------")
+
+    setTimeout(() => console.log("Timer 2 finished"), 0)
+    setTimeout(() => console.log("Timer 3 finished"), 3000)
+    setImmediate(() => console.log("Immediate 2 finished"))
+
+    process.nextTick(() => console.log("Process.nextTick"))
+
+    crypto.pbkdf2('password', 'salt', 100000, 1024, 'sha512', () => {
+        console.log(Date.now() - start, "Password encrypted")
+    })
+
+    crypto.pbkdf2('password', 'salt', 100000, 1024, 'sha512', () => {
+        console.log(Date.now() - start, "Password encrypted")
+    })
+
+    crypto.pbkdf2('password', 'salt', 100000, 1024, 'sha512', () => {
+        console.log(Date.now() - start, "Password encrypted")
+    })
+
+    crypto.pbkdf2('password', 'salt', 100000, 1024, 'sha512', () => {
+        console.log(Date.now() - start, "Password encrypted")
+    })
+
+
+})
+
+// 1. 执行顶层代码
+console.log("Hello from the top-level code")
+
+
+```
+
+#### 3.4 发生事件与监听事件
+
+运行的过程：
+
+1. 事件发出
+
+2. 事件监听
+
+3. 调用回调函数
+
+其中，*1、2*被称作观察者模式
+
+**本地事件监听**
+
+```js
+const EventEmitter = require("events")
+
+class Sales extends EventEmitter{
+    constructor() {
+        super();
+    }
+}
+
+const myEmitter = new Sales()
+
+// 2. 监听事件
+// 3. 按顺序启用回调函数
+myEmitter.on("newSale", () => {
+    console.log("There was a new sale!")
+})
+
+myEmitter.on("newSale", () => {
+    console.log("Costumer name: Liu")
+})
+
+myEmitter.on("newSale", (stock) => {
+    console.log(`There are now ${stock} items left in stock`)
+})
+
+
+// 1. 发出事件
+myEmitter.emit("newSale");
+```
+
+**服务器事件监听**
+
+```js
+const http = require("http")
+
+
+// 1. 创建监听者
+const server = http.createServer()
+
+// 2. 创建服务器监听者，监听服务器进行的事件
+server.on("request",(req,res) => {
+    console.log("Request received!")
+    res.end("Request received")
+})
+
+server.on("request",(req,res) => {
+    console.log("Another request 😀")
+})
+
+server.on("close",() => {
+    console.log("Server closed")
+})
+
+// 3. 创建服务器监听者，监听请求地址
+server.listen(8001,'127.0.0.1',()=>{
+    console.log("Waiting for requests...")
+})
+```
