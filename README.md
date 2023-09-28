@@ -390,6 +390,8 @@ server.listen(8001,'127.0.0.1',()=>{
 
 ## 第五章 Express
 
+#### 5.1 基本理论
+
 `Express`：
 
 - 微小型NodeJS框架，一个高等级的抽象层
@@ -429,3 +431,95 @@ server.listen(8001,'127.0.0.1',()=>{
 1. 记录前端的状态
 
 2. 请求包含资源，不要包含操作
+
+#### 5.2 中间件
+
+说明：中间件是请求与响应之间对请求、响应对象做**辅助性操作**的控件，中间件不止一个，单个请求响应中，所有的中间件称为中间件堆栈
+
+作用：
+
+1. 分析请求体
+
+2. 作日志记录
+
+3. 设置请求头
+
+4. 路由操作
+
+#### 5.3 中间件写法
+
+```js
+const express = require('express')
+const app = express();
+const morgan = require('morgan')
+
+// 添加中间件
+// 3. 引用外部集成的中间件
+app.use(morgan('dev'));
+
+// 2. 获取请求体
+app.use(express.json())
+
+app.use((req, res, next) => {
+    console.log('Hello from the middleware 😐')
+    next()
+})
+
+// 1. 基本中间件，接收请求与响应对象
+app.use((req, res, next) => {
+    req.requestTime = new Date().toISOString()
+    next()
+})
+```
+
+#### 5.4 路由写法
+
+- 初版写法，请求连接，返回响应
+
+```js
+app.get('/',(req,res)=>{
+    // res.status(200).send('Hello from the server side!')
+    res
+        .status(200)
+        .json({messsage:'Hello from the server side!',app:'Natours'})
+})
+
+app.post('/',(req,res)=>{
+    res.send('You can post to this endpoint...')
+})
+```
+
+- 二版写法，路由请求，外部方法
+
+```js
+// 全部请求
+app.get('/api/v1/tours', getAllTours)
+
+// 命名参数请求
+// 直接获取格式 /:name
+// 可选获取格式 /:name?
+// params 读取参数
+app.get('/api/v1/tours/:id', getIdTour)
+
+// 发送请求
+app.post('/api/v1/tours', PostTour)
+
+// 发送Patch请求
+app.patch('/api/v1/tours/:id', PatchTour)
+
+// 删除请求
+app.delete('/api/v1/tours/:id', deleteTour) .post(postUser)
+```
+
+- 三版写法，路由地址，链式请求，外部方法
+
+```js
+app.route('/api/v1/users')
+    .get(getAllUsers)
+    .post(postUser)
+
+app.route('/api/v1/users/:id')
+    .get(getIdUser)
+    .patch(updateUser)
+    .delete(deleteUser)
+```
