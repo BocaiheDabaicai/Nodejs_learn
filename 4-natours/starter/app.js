@@ -170,7 +170,7 @@ const deleteUser = (req, res) => {
 
 // 3. 路由连接
 const tourRouter = express.Router();
-app.use('/api/v1/tours',tourRouter)
+const userRouter = express.Router();
 
 // 重构写法
 tourRouter.route('/')
@@ -182,14 +182,19 @@ tourRouter.route('/:id')
     .patch(updateTour)
     .delete(deleteTour)
 
-app.route('/api/v1/users')
+userRouter.route('/api/v1/users')
     .get(getAllUsers)
     .post(postUser)
 
-app.route('/api/v1/users/:id')
+userRouter.route('/api/v1/users/:id')
     .get(getIdUser)
     .patch(updateUser)
     .delete(deleteUser)
+
+
+app.use('/api/v1/tours', tourRouter)
+app.use('/api/v1/users', userRouter)
+
 
 // 4. 启动服务
 const port = 3000;

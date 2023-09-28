@@ -523,3 +523,38 @@ app.route('/api/v1/users/:id')
     .patch(updateUser)
     .delete(deleteUser)
 ```
+
+- 四版写法
+  
+  1. 生成路由器对象，配置目标地址、链式请求方法
+  
+  2. 服务器对象配置源地址，路由器对象
+
+```js
+// 路由连接
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+// 重构写法
+tourRouter.route('/')
+    .get(getAllTours)
+    .post(postTour)
+
+tourRouter.route('/:id')
+    .get(getIdTour)
+    .patch(updateTour)
+    .delete(deleteTour)
+
+userRouter.route('/api/v1/users')
+    .get(getAllUsers)
+    .post(postUser)
+
+userRouter.route('/api/v1/users/:id')
+    .get(getIdUser)
+    .patch(updateUser)
+    .delete(deleteUser)
+
+
+app.use('/api/v1/tours', tourRouter)
+app.use('/api/v1/users', userRouter)
+```
