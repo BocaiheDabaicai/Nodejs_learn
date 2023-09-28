@@ -488,8 +488,6 @@ app.use((req, res, next) => {
 
 配置子路由方法，可以配置多种方法，例如`get`，`post`等等方法，最好以链式方法配置
 
-
-
 #### 5.4 路由写法
 
 - 初版写法，请求连接，返回响应
@@ -575,4 +573,35 @@ userRouter.route('/api/v1/users/:id')
 
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
+```
+
+- 第五版写法，结构化配置
+  
+  1. 配置路由器对象
+  
+  2. 引入`app.js`，并为路由器对象配置子路由
+
+```js
+// app.js 入口文件
+const tourRouter = require('./routes/tourRoutes')
+const userRouter = require('./routes/userRoutes')
+
+app.use('/api/v1/tours', tourRouter)
+app.use('/api/v1/users', userRouter) 
+
+// tourRoutes.js,方法省略
+const express = require("express");
+const router = express.Router();
+
+router.route('/')
+    .get(getAllTours)
+    .post(postTour)
+
+router.route('/:id')
+    .get(getIdTour)
+    .patch(updateTour)
+    .delete(deleteTour)
+
+module.exports = router;
+// userRoutes.js,略
 ```
