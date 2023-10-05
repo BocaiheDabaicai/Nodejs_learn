@@ -10,6 +10,7 @@ const userRouter = require('./routes/userRoutes')
 // 添加中间件
 app.use(morgan('dev'));
 app.use(express.json())
+app.use(express.static(`${__dirname}/public`))
 app.use((req, res, next) => {
     console.log('Hello from the middleware 😐')
     next()
@@ -26,7 +27,4 @@ app.use('/api/v1/users', userRouter)
 
 
 // 4. 启动服务
-const port = 3000;
-app.listen(port, () => {
-    console.log(`App running on port ${port}...`)
-})
+module.exports = app;

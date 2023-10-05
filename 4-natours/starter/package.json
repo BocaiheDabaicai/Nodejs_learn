@@ -4,7 +4,7 @@
   "description": "express learning",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon server.js"
   },
   "author": "Lex sium",
   "license": "ISC",
