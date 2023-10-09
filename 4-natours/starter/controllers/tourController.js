@@ -1,7 +1,4 @@
-const fs = require('fs');
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
-);
+const Tour = require('./../models/tourModel');
 
 exports.checkID = (req, res, next, val) => {
   console.log(`Tour id is: ${val}`);
@@ -16,58 +13,61 @@ exports.checkID = (req, res, next, val) => {
 
   next();
 };
-exports.checkBody = (req, res, next) => {
-  console.log(req.body.name);
-  if (!req.body.name || !req.body.price) {
-    res.status(400).json({
-      status: 'fail post request',
-      message: 'Missing name or price',
+
+exports.getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error,
     });
   }
-  next();
 };
-exports.getAllTours = (req, res) => {
-  console.log(req.requestTime);
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    data: {
-      tours,
-    },
-  });
-};
-exports.getIdTour = (req, res) => {
+exports.getIdTour = async (req, res) => {
   console.log(req.params);
-  const tour = tours.find((item) => item.id === +req.params.id);
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // const tour = await Tour.findOne({ _id: req.params.id });
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
-exports.postTour = (req, res) => {
+exports.postTour = async (req, res) => {
   console.log(req.body);
+  try {
+    const newTour = await Tour.create(req.body);
 
-  const newId = tours.at(-1).id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
-
-  tours.push(newTour);
-
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour,
-        },
-      });
-    },
-  );
-
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid data sent!',
+    });
+  }
   // 一次请求中，响应只能出现一次
   // res.send('Done')
 };

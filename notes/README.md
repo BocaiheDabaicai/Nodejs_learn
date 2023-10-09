@@ -715,3 +715,74 @@ PASSWORD=123456
 #### 5.6 代码检查与格式化工具 略
 
 ---
+
+## 第六章 MongoDB
+
+#### 6.1 MongoDB简介
+
+`MongoDB`是一种非结构型数据库，具备可扩展性、灵活性以及想要的查询和索引效果
+
+特点：
+
+1. 数据格式类似于`JSON`，叫做`BSON`
+
+2. 可以存储数组、对象数组（文档），不总是常见的数据类型
+
+#### 6.2 MongoDB的基本操作
+
+基本操作
+
+| 名称                  | 内容                  |
+| ------------------- | ------------------- |
+| use xxx             | 使用xxx数据库            |
+| show dbs            | 查看所有的数据库            |
+| db.xxx.insertOne()  | 当前数据库下xxx集合插入一条数据   |
+| db.xxx.insertMany() | 当前数据库下xxx集合插入多条数据   |
+| db.xxx.find()       | 当前数据库下查找xxx集合，并返回数据 |
+| db.xxx.updateOne()  | 当前数据库下更新指定条件的一条数据   |
+| db.xxx.updateMany() | 当前数据库下更新指定条件的多条数据   |
+| db.xxx.deleteMany() | 当前数据库下删除指定条件的所有数据   |
+
+查询使用
+
+`db.xxx.find()`
+
+find方法中放入对象进行筛选
+
+1. `find({price:499})`，查询`price`属性值为499的对象
+
+2. `find({price:{$lte:500}})`，查询`price`属性值小于或等于500的对象
+
+3. `find({price:{$lt:500},rating:{$gte:4.8}})`，查询`price`属性值小于500且`rating`大于4.8的对象
+
+4. `find({$or:[price:{$lt:500},rating:{$gte:4.8}]})`，查询`price`属性值小于500或`rating`大于4.8的对象
+
+更新使用
+
+`db.xxx.updateOne()`，`db.xxx.updateMany()`
+
+条件筛选与`find`方法一致
+
+1. `updateOne({price:{$gt:500},rating:{$gte:4.8}},{$set:{price:700}})`，查询`price`属性大于500且比率大于等于4.8的一个对象，将它的价格修改为700
+
+2. `updateOne({price:{$lt:600},rating:4.8},{$set:{premium:true}})`，查询`price`属性小于600且比率等于4.8的所有对象，为它添加新的属性并赋值`premium:true`
+
+删除使用
+
+`db.xxx.deleteMany()`
+
+条件筛选与`find`方法一致
+
+1. `deleteMany({price:{$gt:400}})`，删除`price`大于400的对象
+
+2. `deleteMany({})`，删除当前数据库下xxx集合的所有数据
+
+#### 6.3 连接Atlas云服务器
+
+1. 申请免费的云数据库空间
+
+2. 云数据库连接本地`MongoDB Compass`
+
+3. 测试使用
+
+---
