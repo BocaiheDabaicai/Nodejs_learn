@@ -4,6 +4,7 @@ const {
   checkID,
   aliasTopTours,
   getTourStates,
+  getMonthlyPlan,
   getAllTours,
   postTour,
   getIdTour,
@@ -16,6 +17,7 @@ const router = express.Router();
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 
 router.route('/tour-stats').get(getTourStates);
+router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 router.route('/').get(getAllTours).post(postTour);
 
