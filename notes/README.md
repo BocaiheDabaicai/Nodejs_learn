@@ -786,3 +786,217 @@ find方法中放入对象进行筛选
 3. 测试使用
 
 ---
+
+## 第七章 Express,MongoDB
+
+#### 7.1 编写文档规则
+
+- 设置属性
+
+- 设置必要性
+
+- 设置属性规则
+
+- 枚举值，可选
+
+- 数据类型
+
+代码示例如下
+
+```js
+const tourSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'A tour muse have a name'],
+      unique: true,
+      trim: true,
+      maxlength: [40, 'A tour name must have less or equal then 40 characters'],
+      minlength: [10, 'A tour name must have more or equal then 40 characters'],
+      validate: [validator.isAlpha, 'Tour name must only contain characters'],
+    },
+    slug: String,
+    duration: {
+      type: Number,
+      required: [true, 'A tour muse have a duration'],
+    },
+    maxGroupSize: {
+      type: Number,
+      required: [true, 'A tour must have a group size'],
+    },
+    difficulty: {
+      type: String,
+      required: [true, 'A tour must have a group difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty is either: easy, medium, difficult',
+      },
+    },
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'Rating must be below 1.0'],
+    },
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
+    price: {
+      type: Number,
+      required: [true, 'A tour muse have a price'],
+    },
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (value) {
+          return value < this.price;
+        },
+        message: 'Discount price ({VALUE}) should be below regular price',
+      },
+    },
+    summary: {
+      type: String,
+      trim: true,
+      required: [true, 'A tour must have a description'],
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    imageCover: {
+      type: String,
+      required: [true, 'A tour must have a cover image'],
+    },
+    images: [String],
+    createAt: {
+      type: Date,
+      default: Date.now(),
+      select: false,
+    },
+    startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
+);
+
+// 虚拟属性
+tourSchema.virtual('durationWeeks').get(function () {
+  return this.duration / 7;
+});
+
+// 中间件
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+/*
+tourSchema.pre('save', function (next) {
+  console.log('Will save document...');
+  next();
+});
+
+tourSchema.post('save', function (doc, next) {
+  console.log(doc);
+  next();
+});
+*/
+
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} millisecond!`);
+  console.log(docs);
+  next();
+});
+
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+
+  console.log(this);
+  next();
+});
+
+const Tour = mongoose.model('Tour', tourSchema);
+```
+
+最后使规则生效，并返回文档对象，以便可以进行查询、更新、删除操作
+
+中间件可以在执行相应操作时生效，通过`next()`方法将调整后的数据发送至操作函数
+
+#### 7.2 编写请求函数
+
+异步编程方法，获取参数（可选）执行数据库操作，并返回结果数据，如果出现错误，那么抛出错误标识符与错误信息
+
+示例代码如下：
+
+```js
+exports.getIdTour = async (req, res) => {
+  console.log(req.params);
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // const tour = await Tour.findOne({ _id: req.params.id });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+```
+
+#### 7.3 配置请求路由
+
+在配置的子路由的请求方式下，传入获取数据的函数
+
+示例如下：
+
+```js
+router.route('/:id').get(getIdTour)
+```
+
+#### 7.4 封装查询方法
+
+链式查询方法，通过第一次默认查询得到的结果进行后续深入操作（过滤、排序、限制属性、分页），每次完成操作之后，返回封装对象。
+
+示例代码如下：
+
+```js
+filter() {
+    // 1. 过滤
+    const queryObj = { ...this.queryString };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    // 2. 进一步过滤
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    console.log(this.query, queryObj);
+    console.log(JSON.parse(queryStr));
+
+    this.query.find(JSON.parse(queryStr));
+    // let query = Tour.find(JSON.parse(queryStr));
+    return this;
+  }
+```
+
+---
