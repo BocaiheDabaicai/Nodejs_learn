@@ -3,6 +3,8 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
@@ -30,6 +32,28 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+// 放在路由对象下面进行错误路由处理
+// 避免路由覆盖现象
+app.all('*', (req, res, next) => {
+  // 方法一 直接抛出错误
+  // res.status(404).json({
+  //   status: 'fail',
+  //   message: `${req.originalUrl} Page can't be found on this server`,
+  // });
+
+  // 方法二 抛出错误对象
+  // const err = new Error(
+  //   `${req.originalUrl} Page can't be found on this server`,
+  // );
+  // err.status = 'fail';
+  // err.statusCode = 404;
+  // next(err)
+
+  // 方法三 抛出封装错误对象
+  next(new AppError(`${req.originalUrl} Page can't be found on this server`));
+});
+
+app.use(globalErrorHandler);
 
 // 4. 启动服务
 module.exports = app;
