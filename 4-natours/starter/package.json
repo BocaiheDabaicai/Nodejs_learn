@@ -11,6 +11,7 @@
   "author": "Lex sium",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "eslint": "^8.51.0",
