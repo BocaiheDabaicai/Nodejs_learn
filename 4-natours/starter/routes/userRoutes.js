@@ -2,6 +2,7 @@ const express = require('express');
 const {
   getAllUsers,
   updateMe,
+  deleteMe,
   postUser,
   getIdUser,
   updateUser,
@@ -21,6 +22,7 @@ router.patch(
   authController.updatePassword,
 );
 router.patch('/updateMe',authController.protect,updateMe)
+router.delete('/deleteMe',authController.protect,deleteMe)
 
 router.route('/').get(getAllUsers).post(postUser);
 
